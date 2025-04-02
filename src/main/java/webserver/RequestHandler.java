@@ -2,6 +2,8 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,19 +29,30 @@ public class RequestHandler implements Runnable{
             String method = tokens[0];
             String path = tokens[1];
 
-            if ("GET".equals(method) && ("/index.html".equals(path))) {
+            if ("GET".equals(method) && "/index.html".equals(path)) {
                 log.info("Serving index.html");
-
-                byte[] body = readFileContents("./webapp/index.html");
+                byte[] body = Files.readAllBytes(Paths.get("./webapp/index.html"));
                 response200Header(dos, body.length);
                 responseBody(dos, body);
+
+            } else if ("GET".equals(method) && "/show.html".equals(path)) {
+                log.info("Serving show.html");
+                byte[] body = Files.readAllBytes(Paths.get("./webapp/qna/show.html"));
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+
+            } else if ("GET".equals(method) && "/form.html".equals(path)) {
+                log.info("Serving form.html");
+                byte[] body = Files.readAllBytes(Paths.get("./webapp/qna/form.html"));
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+
             } else {
                 log.warning("Not Found: " + path);
                 byte[] body = "<h1>404 Not Found</h1>".getBytes();
                 response404Header(dos, body.length);
                 responseBody(dos, body);
             }
-
         } catch (IOException e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -72,19 +85,6 @@ public class RequestHandler implements Runnable{
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.log(Level.SEVERE, e.getMessage(), e);
-        }
-    }
-    private byte[] readFileContents(String filePath) {
-        try {
-            File file = new File(filePath);
-            byte[] data = new byte[(int) file.length()];
-            try (FileInputStream fis = new FileInputStream(file)) {
-                fis.read(data);
-            }
-            return data;
-        } catch (IOException e) {
-            log.log(Level.SEVERE, "File read error: " + filePath, e);
-            return "<h1>500 Internal Server Error</h1>".getBytes();
         }
     }
 }
