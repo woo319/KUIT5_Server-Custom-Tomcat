@@ -16,16 +16,32 @@ public class RequestHandler implements Runnable{
     @Override
     public void run() {
         log.log(Level.INFO, "New Client Connect! Connected IP : " + connection.getInetAddress() + ", Port : " + connection.getPort());
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()){
+        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             DataOutputStream dos = new DataOutputStream(out);
 
-            byte[] body = "Hello World".getBytes();
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            String requestLine = br.readLine(); // 요청 첫 줄
+            if (requestLine == null || requestLine.isEmpty()) return;
+
+            String[] tokens = requestLine.split(" ");
+            String method = tokens[0];
+            String path = tokens[1];
+
+            if ("GET".equals(method) && ("/index.html".equals(path))) {
+                log.info("Serving index.html");
+
+                byte[] body = readFileContents("./webapp/index.html");
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+            } else {
+                log.warning("Not Found: " + path);
+                byte[] body = "<h1>404 Not Found</h1>".getBytes();
+                response404Header(dos, body.length);
+                responseBody(dos, body);
+            }
 
         } catch (IOException e) {
-            log.log(Level.SEVERE,e.getMessage());
+            log.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
@@ -48,5 +64,27 @@ public class RequestHandler implements Runnable{
             log.log(Level.SEVERE, e.getMessage());
         }
     }
-
+    private void response404Header(DataOutputStream dos, int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 404 Not Found\r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+    private byte[] readFileContents(String filePath) {
+        try {
+            File file = new File(filePath);
+            byte[] data = new byte[(int) file.length()];
+            try (FileInputStream fis = new FileInputStream(file)) {
+                fis.read(data);
+            }
+            return data;
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "File read error: " + filePath, e);
+            return "<h1>500 Internal Server Error</h1>".getBytes();
+        }
+    }
 }
