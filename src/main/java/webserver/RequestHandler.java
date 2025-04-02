@@ -23,8 +23,12 @@ public class RequestHandler implements Runnable{
             DataOutputStream dos = new DataOutputStream(out);
 
             String requestLine = br.readLine(); // 요청 첫 줄
+            System.out.println(requestLine);
             if (requestLine == null || requestLine.isEmpty()) return;
-
+            String line;
+            while (!(line = br.readLine()).isEmpty()) {
+                System.out.println(line);
+            }
             String[] tokens = requestLine.split(" ");
             String method = tokens[0];
             String path = tokens[1];
@@ -35,19 +39,48 @@ public class RequestHandler implements Runnable{
                 response200Header(dos, body.length);
                 responseBody(dos, body);
 
-            } else if ("GET".equals(method) && "/show.html".equals(path)) {
+            } else if ("GET".equals(method) && "/qna/show.html".equals(path)) {
                 log.info("Serving show.html");
                 byte[] body = Files.readAllBytes(Paths.get("./webapp/qna/show.html"));
                 response200Header(dos, body.length);
                 responseBody(dos, body);
 
-            } else if ("GET".equals(method) && "/form.html".equals(path)) {
+            } else if ("GET".equals(method) && "/qna/form.html".equals(path)) {
                 log.info("Serving form.html");
                 byte[] body = Files.readAllBytes(Paths.get("./webapp/qna/form.html"));
                 response200Header(dos, body.length);
                 responseBody(dos, body);
 
-            } else {
+            }
+            else if ("GET".equals(method) && "/user/form.html".equals(path)) {
+                log.info("Serving form.html");
+                byte[] body = Files.readAllBytes(Paths.get("./webapp/user/form.html"));
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+
+            }
+            else if ("GET".equals(method) && "/user/list.html".equals(path)) {
+                log.info("Serving form.html");
+                byte[] body = Files.readAllBytes(Paths.get("./webapp/user/list.html"));
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+
+            }
+            else if ("GET".equals(method) && "/user/login.html".equals(path)) {
+                log.info("Serving form.html");
+                byte[] body = Files.readAllBytes(Paths.get("./webapp/user/login.html"));
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+
+            }
+            else if ("GET".equals(method) && "/user/login_failed.html".equals(path)) {
+                log.info("Serving form.html");
+                byte[] body = Files.readAllBytes(Paths.get("./webapp/user/login_failed.html"));
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+
+            }
+            else {
                 log.warning("Not Found: " + path);
                 byte[] body = "<h1>404 Not Found</h1>".getBytes();
                 response404Header(dos, body.length);
