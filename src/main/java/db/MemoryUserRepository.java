@@ -32,4 +32,7 @@ public class MemoryUserRepository implements Repository{
     public Collection<User> findAll() {
         return users.values();
     }
+
+    public void save(User user) {
+    }
 }

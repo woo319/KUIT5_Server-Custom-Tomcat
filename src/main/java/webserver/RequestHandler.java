@@ -1,7 +1,11 @@
 package webserver;
 
+import db.MemoryUserRepository;
+import model.User;
+
 import java.io.*;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.logging.Level;
@@ -32,6 +36,39 @@ public class RequestHandler implements Runnable{
             String[] tokens = requestLine.split(" ");
             String method = tokens[0];
             String path = tokens[1];
+
+            if ("GET".equals(method) && path.startsWith("/user/signup")) {
+                String queryString = "";
+                if (path.contains("?")) {
+                    queryString = path.substring(path.indexOf("?") + 1); // ? 다음 문자부터 잘라내기
+                    path = path.substring(0, path.indexOf("?")); // 경로(/user/signup)만 따로 분리
+                }
+
+                // 파싱
+                String userId = "", password = "", name = "", email = "";
+                String[] params = queryString.split("&");
+                for (String param : params) {
+                    String[] keyValue = param.split("=");
+                    if (keyValue.length == 2) {
+                        String key = URLDecoder.decode(keyValue[0], "UTF-8");
+                        String value = URLDecoder.decode(keyValue[1], "UTF-8");
+                        switch (key) {
+                            case "userId" -> userId = value;
+                            case "password" -> password = value;
+                            case "name" -> name = value;
+                            case "email" -> email = value;
+                        }
+                    }
+                }
+
+                // 저장
+                User user = new User(userId, password, name, email);
+                MemoryUserRepository.getInstance().save(user);
+
+                // 리다이렉트
+                response302Header(dos, "/index.html");
+                return;
+            }
 
             if ("GET".equals(method) && "/index.html".equals(path)) {
                 log.info("Serving index.html");
@@ -119,5 +156,11 @@ public class RequestHandler implements Runnable{
         } catch (IOException e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }
+    }
+
+    private void response302Header(DataOutputStream dos, String path) throws IOException {
+        dos.writeBytes("HTTP/1.1 302 Found\r\n");
+        dos.writeBytes("Location: " + path + "\r\n");
+        dos.writeBytes("\r\n");
     }
 }
