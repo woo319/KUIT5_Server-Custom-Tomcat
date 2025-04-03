@@ -81,6 +81,7 @@ public class RequestHandler implements Runnable{
                 return;
             }*/
 
+            //회원가입
             if("POST".equals(method) && "/user/signup".equals(path)) {
                 // 바디 읽기(post는 url이 아닌 body에 내용 담음 -> readline()하면 안되고 byte로 읽어야됨)
                 char[] bodyChars = new char[contentLength];
@@ -111,6 +112,7 @@ public class RequestHandler implements Runnable{
                 return;
             }
 
+            //화면 띄우기
             if ("GET".equals(method) && "/index.html".equals(path)) {
                 log.info("Serving index.html");
                 byte[] body = Files.readAllBytes(Paths.get("./webapp/index.html"));
@@ -204,5 +206,11 @@ public class RequestHandler implements Runnable{
         dos.writeBytes("Location: " + path + "\r\n");
         dos.writeBytes("\r\n");
     }
-
+    private void response302WithCookie(DataOutputStream dos, String path, String cookie) throws IOException {
+        dos.writeBytes("HTTP/1.1 302 Found\r\n");
+        dos.writeBytes("Location: " + path + "\r\n");
+        dos.writeBytes("Set-Cookie: " + cookie + "\r\n");
+        dos.writeBytes("Content-Length: 0\r\n");
+        dos.writeBytes("\r\n");
+    }
 }
