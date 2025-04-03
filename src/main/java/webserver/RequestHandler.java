@@ -210,6 +210,15 @@ public class RequestHandler implements Runnable{
                 responseBody(dos, body);
 
             }
+            //css
+            else if (path.endsWith(".css")) {
+                log.info("Serving CSS: " + path);
+                byte[] body = Files.readAllBytes(Paths.get("./webapp" + path));
+                response200HeaderForCSS(dos, body.length);
+                responseBody(dos, body);
+                return;
+            }
+
             else {
                 log.warning("Not Found: " + path);
                 byte[] body = "<h1>404 Not Found</h1>".getBytes();
@@ -220,6 +229,18 @@ public class RequestHandler implements Runnable{
             log.log(Level.SEVERE, e.getMessage(), e);
         }
     }
+
+    private void response200HeaderForCSS(DataOutputStream dos, int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: text/css;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.log(Level.SEVERE, e.getMessage());
+        }
+    }
+
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {
