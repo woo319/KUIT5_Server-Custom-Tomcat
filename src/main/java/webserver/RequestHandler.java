@@ -112,6 +112,41 @@ public class RequestHandler implements Runnable{
                 return;
             }
 
+            //로그인
+            else if ("POST".equals(method) && "/user/login".equals(path)) {
+                char[] bodyChars = new char[contentLength];
+                br.read(bodyChars, 0, contentLength);
+                String body = new String(bodyChars);
+                System.out.println("login body: " + body);
+
+                String userId = "", password = "";
+                String[] params = body.split("&");
+                for (String param : params) {
+                    String[] keyValue = param.split("=");
+                    if (keyValue.length == 2) {
+                        String key = URLDecoder.decode(keyValue[0], "UTF-8");
+                        String value = URLDecoder.decode(keyValue[1], "UTF-8");
+                        switch (key) {
+                            case "userId" -> userId = value;
+                            case "password" -> password = value;
+                        }
+                    }
+                }
+
+                User user = MemoryUserRepository.getInstance().findByUserId(userId);
+                System.out.println("찾은 유저: " + user);
+                if (user != null && user.getPassword().equals(password)) {
+                    System.out.println("로그인 성공!!!!!: " + userId);
+                    response302WithCookie(dos, "/index.html", "logined=true");
+                } else {
+                    System.out.println("로그인 실패ㅠㅠ");
+                    response302Header(dos, "/user/login_failed.html");
+                }
+
+                return;
+            }
+
+
             //화면 띄우기
             if ("GET".equals(method) && "/index.html".equals(path)) {
                 log.info("Serving index.html");
