@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,19 +36,27 @@ public class RequestHandler implements Runnable{
             String method = tokens[0];
             String path = tokens[1];
 
-            //header 읽기
-            int contentLength = 0;
-            while (true) {
-                final String line = br.readLine();
-                System.out.println(line);
-                if (line.equals("")) {
-                    break;
+            //header 읽기(재사용 위해 List로)
+                List<String> headers = new ArrayList<>();
+                String line;
+                int contentLength = 0;
+                boolean isLogined = false;
+
+                while ((line = br.readLine()) != null && !line.isEmpty()) {
+                    headers.add(line);
+                    if (line.startsWith("Content-Length")) {
+                        contentLength = Integer.parseInt(line.split(": ")[1]);
+                    }
+                    if (line.startsWith("Cookie")) {
+                        String[] cookies = line.split(": ")[1].split("; ");
+                        for (String cookie : cookies) {
+                            if (cookie.equals("logined=true")) {
+                                isLogined = true;
+                                break;
+                            }
+                        }
+                    }
                 }
-                // header info
-                if (line.startsWith("Content-Length")) {
-                    contentLength = Integer.parseInt(line.split(": ")[1]);
-                }
-            }
 
             /*if ("GET".equals(method) && path.startsWith("/user/signup")) {
                 String queryString = "";
@@ -174,11 +184,16 @@ public class RequestHandler implements Runnable{
                 responseBody(dos, body);
 
             }
-            else if ("GET".equals(method) && "/user/list.html".equals(path)) {
+            else if ("GET".equals(method) && "/user/userList".equals(path)) {
                 log.info("Serving form.html");
-                byte[] body = Files.readAllBytes(Paths.get("./webapp/user/list.html"));
-                response200Header(dos, body.length);
-                responseBody(dos, body);
+                if (isLogined) {
+                    byte[] body = Files.readAllBytes(Paths.get("./webapp/user/list.html"));
+                    response200Header(dos, body.length);
+                    responseBody(dos, body);
+                } else {
+                    response302Header(dos, "/user/login.html");
+                }
+                return;
 
             }
             else if ("GET".equals(method) && "/user/login.html".equals(path)) {
