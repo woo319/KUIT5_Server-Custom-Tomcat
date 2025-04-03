@@ -29,15 +29,26 @@ public class RequestHandler implements Runnable{
             String requestLine = br.readLine(); // 요청 첫 줄
             System.out.println(requestLine);
             if (requestLine == null || requestLine.isEmpty()) return;
-            String line;
-            while (!(line = br.readLine()).isEmpty()) {
-                System.out.println(line);
-            }
+
             String[] tokens = requestLine.split(" ");
             String method = tokens[0];
             String path = tokens[1];
 
-            if ("GET".equals(method) && path.startsWith("/user/signup")) {
+            //header 읽기
+            int contentLength = 0;
+            while (true) {
+                final String line = br.readLine();
+                System.out.println(line);
+                if (line.equals("")) {
+                    break;
+                }
+                // header info
+                if (line.startsWith("Content-Length")) {
+                    contentLength = Integer.parseInt(line.split(": ")[1]);
+                }
+            }
+
+            /*if ("GET".equals(method) && path.startsWith("/user/signup")) {
                 String queryString = "";
                 if (path.contains("?")) {
                     queryString = path.substring(path.indexOf("?") + 1); // ? 다음 문자부터 잘라내기
@@ -66,6 +77,36 @@ public class RequestHandler implements Runnable{
                 MemoryUserRepository.getInstance().save(user);
 
                 // 리다이렉트
+                response302Header(dos, "/index.html");
+                return;
+            }*/
+
+            if("POST".equals(method) && "/user/signup".equals(path)) {
+                // 바디 읽기(post는 url이 아닌 body에 내용 담음 -> readline()하면 안되고 byte로 읽어야됨)
+                char[] bodyChars = new char[contentLength];
+                br.read(bodyChars, 0, contentLength);
+                String body = new String(bodyChars);
+                System.out.println("!!!!!!!!!"+body);
+
+                String userId = "", password = "", name = "", email = "";
+                String[] params = body.split("&");
+                for (String param : params) {
+                    String[] keyValue = param.split("=");
+                    if (keyValue.length == 2) {
+                        String key = URLDecoder.decode(keyValue[0], "UTF-8");
+                        String value = URLDecoder.decode(keyValue[1], "UTF-8");
+                        switch (key) {
+                            case "userId" -> userId = value;
+                            case "password" -> password = value;
+                            case "name" -> name = value;
+                            case "email" -> email = value;
+                        }
+                    }
+                }
+
+                User user = new User(userId, password, name, email);
+                MemoryUserRepository.getInstance().save(user);
+
                 response302Header(dos, "/index.html");
                 return;
             }
@@ -163,4 +204,5 @@ public class RequestHandler implements Runnable{
         dos.writeBytes("Location: " + path + "\r\n");
         dos.writeBytes("\r\n");
     }
+
 }
