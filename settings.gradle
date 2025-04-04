@@ -1,2 +1,4 @@
 rootProject.name = 'custom-tomcat'
+include 'src:main:enums'
+findProject(':src:main:enums')?.name = 'enums'
 
