@@ -1,4 +1,4 @@
-package model.enums;  // ✅ 이거 꼭 있어야 해!
+package model.enums;
 public enum RequestPath {
     SIGNUP("/user/signup"),
     LOGIN("/user/login"),
@@ -13,7 +13,4 @@ public enum RequestPath {
         this.path = path;
     }
 
-    public String path() {
-        return path;
-    }
 }

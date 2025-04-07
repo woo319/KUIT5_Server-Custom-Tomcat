@@ -18,7 +18,7 @@ public class HttpResponse {
 
     public void forward(String path) throws IOException {
         try {
-            byte[] body = Files.readAllBytes(Paths.get("./webapp" + path));
+            byte[] body = Files.readAllBytes(Paths.get("./webapp" + path)); //path에 해당하는 파일 찾고 바이트 배열로 읽어옴
             addHeader("Content-Type", contentType(path));
             addHeader("Content-Length", String.valueOf(body.length));
             writeResponse(HttpStatus.OK, body);

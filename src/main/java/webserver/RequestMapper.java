@@ -16,7 +16,6 @@ public class RequestMapper {
         controllers.put("/user/signup", new SignupController());
         controllers.put("/user/login", new LoginController());
         controllers.put("/user/userList", new UserListController());
-        // 필요한 만큼 컨트롤러 추가
     }
 
     public RequestMapper(HttpRequest request, HttpResponse response) {

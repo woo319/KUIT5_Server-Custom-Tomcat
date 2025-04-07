@@ -1,4 +1,4 @@
-package model.enums;  // ✅ 이거 꼭 있어야 해!
+package model.enums;
 public enum HttpStatus {
     OK(200, "OK"),
     FOUND(302, "Found"),

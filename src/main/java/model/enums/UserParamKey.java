@@ -1,4 +1,4 @@
-package model.enums;  // ✅ 이거 꼭 있어야 해!
+package model.enums;
 public enum UserParamKey {
     USER_ID("userId"),
     PASSWORD("password"),

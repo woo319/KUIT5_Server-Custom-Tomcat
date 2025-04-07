@@ -1,5 +1,4 @@
-package model.enums;  // ✅ 이거 꼭 있어야 해!
-
+package model.enums;
 public enum HttpHeader {
     CONTENT_LENGTH("Content-Length"),
     COOKIE("Cookie");

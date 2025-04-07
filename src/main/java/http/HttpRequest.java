@@ -53,28 +53,12 @@ public class HttpRequest {
         return new HttpRequest(method, path, version, headers, body);
     }
 
-    public HttpMethod getMethod() {
-        return method;
-    }
-
     public String getPath() {
         return path;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
     public String getHeader(String key) {
         return headers.get(key);
-    }
-
-    public boolean hasHeader(String key) {
-        return headers.containsKey(key);
     }
 
     public String getBody() {

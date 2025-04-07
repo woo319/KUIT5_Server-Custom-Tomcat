@@ -23,7 +23,7 @@ public class SignupController implements Controller {
 
     private User createUserFromParams(Map<String, String> params) throws UnsupportedEncodingException {
         return new User(
-                decode(params.get(UserParamKey.USER_ID.key())),
+                decode(params.get(UserParamKey.USER_ID.key())), //key에 해당하는 값 찾아오기
                 decode(params.get(UserParamKey.PASSWORD.key())),
                 decode(params.get(UserParamKey.NAME.key())),
                 decode(params.get(UserParamKey.EMAIL.key()))

@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryUserRepository {
-    private static final db.MemoryUserRepository instance = new db.MemoryUserRepository();
+    private static final db.MemoryUserRepository instance = new db.MemoryUserRepository(); //싱글턴 패턴
     private final Map<String, model.User> userMap = new HashMap<>();
 
     private MemoryUserRepository() {}
@@ -23,7 +23,4 @@ public class MemoryUserRepository {
         return userMap.get(userId);
     }
 
-    public Map<String, User> findAll() {
-        return userMap;
-    }
 }
